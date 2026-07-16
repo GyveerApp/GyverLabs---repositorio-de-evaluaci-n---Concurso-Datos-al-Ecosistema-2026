@@ -1,0 +1,29 @@
+# Entornos y secretos
+.env
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+myenv/
+
+# Base de datos sintética generada localmente (se recrea con seed_data.py)
+backend/gyverlabs_demo.db
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Modelos y datos sensibles (NUNCA subir)
+*.pkl
+*.csv
+data/raw/
+backend/ml/model.pkl
+
+# Sistema
+.DS_Store
+*.log

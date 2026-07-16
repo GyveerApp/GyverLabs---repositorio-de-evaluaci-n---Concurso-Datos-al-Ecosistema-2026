@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GyverLabs — Plataforma de Prevención del Abandono Escolar</title>
+<style>
+  :root{
+    --azul:#1e3a8a; --azul-claro:#3b82f6; --azul-fondo:#eff6ff;
+    --verde:#16a34a; --verde-fondo:#f0fdf4;
+    --amarillo:#ca8a04; --amarillo-fondo:#fefce8;
+    --rojo:#dc2626; --rojo-fondo:#fef2f2;
+    --morado:#7c3aed; --morado-fondo:#f5f3ff;
+    --gris:#64748b; --gris-fondo:#f8fafc; --borde:#e2e8f0; --texto:#0f172a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--gris-fondo); color:var(--texto);}
+  .oculto{display:none !important;}
+
+  /* ---------- LOGIN ---------- */
+  #vista-login{min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--azul) 0%, #1e293b 100%);}
+  .tarjeta-login{background:white; border-radius:16px; padding:40px; width:380px; box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .logo{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .logo-icono{width:38px; height:38px; border-radius:10px; background:var(--azul); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px;}
+  .logo-texto{font-size:20px; font-weight:700; color:var(--azul);}
+  .tarjeta-login p.sub{color:var(--gris); font-size:13px; margin:0 0 24px;}
+  .campo{margin-bottom:14px;}
+  .campo label{display:block; font-size:13px; font-weight:500; margin-bottom:5px; color:#334155;}
+  .campo input, .campo select{width:100%; padding:10px 12px; border:1px solid var(--borde); border-radius:8px; font-size:14px; font-family:inherit;}
+  .campo input:focus, .campo select:focus{outline:none; border-color:var(--azul-claro);}
+  .btn-primario{width:100%; background:var(--azul); color:white; border:none; padding:12px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; margin-top:8px;}
+  .btn-primario:hover{background:#1e40af;}
+  .nota-demo{margin-top:16px; font-size:12px; color:var(--gris); background:var(--azul-fondo); padding:10px 12px; border-radius:8px;}
+
+  /* ---------- LAYOUT PRINCIPAL ---------- */
+  #vista-app{display:flex; min-height:100vh;}
+  .barra-lateral{width:230px; background:#0f172a; color:#cbd5e1; flex-shrink:0; padding:20px 0; display:flex; flex-direction:column;}
+  .barra-lateral .logo{padding:0 20px 20px; border-bottom:1px solid #1e293b; margin-bottom:12px;}
+  .barra-lateral .logo-texto{color:white;}
+  .nav-item{display:flex; align-items:center; gap:10px; padding:11px 20px; font-size:14px; cursor:pointer; color:#94a3b8; border-left:3px solid transparent;}
+  .nav-item:hover{background:#1e293b; color:white;}
+  .nav-item.activo{background:#1e293b; color:white; border-left-color:var(--azul-claro);}
+  .nav-icono{width:18px; text-align:center;}
+  .tenant-info{margin-top:auto; padding:14px 20px; font-size:12px; color:#64748b; border-top:1px solid #1e293b;}
+
+  .contenido{flex:1; padding:28px 34px; max-width:1240px;}
+  .encabezado{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px;}
+  .encabezado h1{font-size:22px; margin:0 0 4px;}
+  .encabezado p{margin:0; color:var(--gris); font-size:13px;}
+  .btn-salir{background:none; border:1px solid var(--borde); padding:8px 14px; border-radius:8px; font-size:13px; cursor:pointer; color:var(--gris); flex-shrink:0;}
+
+  .grid-kpi{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px;}
+  .kpi{background:white; border:1px solid var(--borde); border-radius:12px; padding:16px 18px;}
+  .kpi .val{font-size:26px; font-weight:700;}
+  .kpi .lbl{font-size:12.5px; color:var(--gris); margin-bottom:4px;}
+  .kpi.rojo .val{color:var(--rojo);}
+  .kpi.verde .val{color:var(--verde);}
+
+  .panel{background:white; border:1px solid var(--borde); border-radius:12px; padding:20px; margin-bottom:20px;}
+  .panel h3{margin:0 0 14px; font-size:15px; display:flex; justify-content:space-between; align-items:center;}
+  .panel h3 .sub{font-weight:400; color:var(--gris); font-size:12.5px;}
+
+  .fila-estudiante{display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1px solid var(--borde); border-radius:10px; margin-bottom:8px; cursor:pointer; transition:box-shadow .15s;}
+  .fila-estudiante:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .fila-estudiante .nombre{font-weight:600; font-size:14px;}
+  .fila-estudiante .grado{color:var(--gris); font-size:13px; margin-left:6px;}
+  .badge{font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; white-space:nowrap;}
+  .badge.critico{background:var(--rojo-fondo); color:var(--rojo);}
+  .badge.moderado{background:var(--amarillo-fondo); color:var(--amarillo);}
+  .badge.leve{background:var(--azul-fondo); color:var(--azul-claro);}
+  .badge.sinriesgo{background:var(--verde-fondo); color:var(--verde);}
+  .badge.gris{background:var(--gris-fondo); color:var(--gris); border:1px solid var(--borde);}
+  .badge.morado{background:var(--morado-fondo); color:var(--morado);}
+
+  .detalle-srd{margin-top:10px; background:var(--gris-fondo); border-radius:10px; padding:16px; font-size:13px;}
+  .detalle-srd ul{margin:6px 0 0; padding-left:18px; color:#334155;}
+  .barra-score{height:8px; border-radius:4px; background:var(--borde); margin-top:6px; overflow:hidden;}
+  .barra-score-fill{height:100%;}
+  .grid-detalle{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0;}
+  .mini-dato{background:white; border:1px solid var(--borde); border-radius:8px; padding:10px 12px;}
+  .mini-dato .lbl{font-size:11px; color:var(--gris);}
+  .mini-dato .val{font-size:16px; font-weight:700; margin-top:2px;}
+  .linea-notif{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--borde);}
+  .linea-notif:last-child{border-bottom:none;}
+
+  .mapa-calor{display:grid; grid-template-columns:repeat(6,1fr); gap:8px;}
+  .celda-grado{border-radius:10px; padding:14px 8px; text-align:center; font-size:12.5px; cursor:pointer;}
+  .celda-grado b{display:block; font-size:18px; margin-top:2px;}
+
+  table.tabla-simple{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.tabla-simple th{text-align:left; color:var(--gris); font-weight:500; font-size:12px; padding:8px 6px; border-bottom:1px solid var(--borde); white-space:nowrap;}
+  table.tabla-simple td{padding:9px 6px; border-bottom:1px solid #f1f5f9; vertical-align:middle;}
+
+  .btn-secundario{background:var(--azul-fondo); color:var(--azul); border:none; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;}
+  .btn-secundario.rojo{background:var(--rojo-fondo); color:var(--rojo);}
+  .btn-secundario.verde{background:var(--verde-fondo); color:var(--verde);}
+  .btn-secundario.gris{background:#f1f5f9; color:var(--gris);}
+  .btn-mini{border:1px solid var(--borde); background:white; padding:4px 9px; border-radius:6px; font-size:12px; cursor:pointer; color:#334155;}
+  .barra-progreso{width:100%; height:6px; background:var(--borde); border-radius:3px; overflow:hidden; margin-top:6px;}
+  .barra-progreso-fill{height:100%; background:var(--azul-claro);}
+
+  .subtabs{display:flex; gap:4px; margin-bottom:18px; border-bottom:1px solid var(--borde);}
+  .subtab{padding:9px 14px; font-size:13.5px; border:none; background:none; cursor:pointer; color:var(--gris); border-bottom:2px solid transparent;}
+  .subtab.activo{color:var(--azul); border-bottom-color:var(--azul); font-weight:600;}
+
+  .form-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:10px; background:var(--gris-fondo); padding:14px; border-radius:10px; margin-bottom:16px;}
+  .form-grid label{font-size:11.5px; color:var(--gris); display:block; margin-bottom:3px;}
+  .form-grid input, .form-grid select{width:100%; padding:7px 9px; border:1px solid var(--borde); border-radius:6px; font-size:13px; font-family:inherit;}
+  .form-grid .accion{display:flex; align-items:flex-end;}
+
+  .toggle-btns{display:flex; gap:5px;}
+  .btn-toggle{border:1px solid var(--borde); background:white; padding:5px 10px; border-radius:6px; font-size:12px; cursor:pointer; color:var(--gris);}
+  .btn-toggle.sel-presente.on{background:var(--verde-fondo); color:var(--verde); border-color:var(--verde);}
+  .btn-toggle.sel-tarde.on{background:var(--amarillo-fondo); color:var(--amarillo); border-color:var(--amarillo);}
+  .btn-toggle.sel-excusa.on{background:var(--azul-fondo); color:var(--azul-claro); border-color:var(--azul-claro);}
+  .btn-toggle.sel-ausente.on{background:var(--rojo-fondo); color:var(--rojo); border-color:var(--rojo);}
+
+  .resumen-semana{display:flex; gap:8px; align-items:flex-end; height:90px; margin-top:10px;}
+  .col-dia{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .barra-dia{width:100%; background:var(--azul-claro); border-radius:4px 4px 0 0;}
+  .col-dia span{font-size:11px; color:var(--gris); margin-top:4px;}
+
+  .chat-flotante{position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; background:var(--azul); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; box-shadow:0 6px 20px rgba(30,58,138,.4); z-index:50;}
+  .chat-caja{position:fixed; bottom:92px; right:24px; width:320px; background:white; border-radius:14px; box-shadow:0 10px 40px rgba(0,0,0,.2); overflow:hidden; z-index:50;}
+  .chat-cabecera{background:var(--azul); color:white; padding:12px 16px; font-size:14px; font-weight:600;}
+  .chat-cuerpo{padding:14px; font-size:13px; max-height:220px; overflow-y:auto;}
+  .msg-bot{background:var(--gris-fondo); border-radius:10px; padding:8px 12px; margin-bottom:8px; max-width:85%;}
+  .msg-user{background:var(--azul-fondo); color:var(--azul); border-radius:10px; padding:8px 12px; margin-bottom:8px; max-width:85%; margin-left:auto;}
+  .chat-input{display:flex; border-top:1px solid var(--borde);}
+  .chat-input input{flex:1; border:none; padding:10px 12px; font-size:13px; font-family:inherit;}
+  .chat-input button{border:none; background:var(--azul); color:white; padding:0 14px; cursor:pointer;}
+
+  .hilo-pregunta{background:var(--gris-fondo); border-radius:8px; padding:10px 12px; margin-top:8px; font-size:12.5px;}
+  .hilo-pregunta b{font-size:12.5px;}
+
+  @media print{
+    .barra-lateral, .btn-salir, .chat-flotante, .chat-caja, .subtabs, .nav-item, .no-imprimir{display:none !important;}
+    .contenido{padding:0; max-width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= VISTA LOGIN ======================= -->
+<div id="vista-login">
+  <div class="tarjeta-login">
+    <div class="logo"><div class="logo-icono">G</div><div class="logo-texto">GyverLabs</div></div>
+    <p class="sub">I.E. San Pablo — Sur de Bolívar · Panel institucional</p>
+    <div class="campo">
+      <label>Correo institucional</label>
+      <input id="input-email" type="email" value="coordinador@iesanpablo.edu.co">
+    </div>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input id="input-pass" type="password" value="••••••••">
+    </div>
+    <button class="btn-primario" onclick="iniciarSesion()">Ingresar al panel</button>
+    <div class="nota-demo">🔒 Demo con datos simulados para evaluación del Concurso Datos al Ecosistema 2026 — MinTIC. Ningún dato corresponde a estudiantes reales.</div>
+  </div>
+</div>
+
+<!-- ======================= VISTA APP ======================= -->
+<div id="vista-app" class="oculto">
+  <div class="barra-lateral">
+    <div class="logo"><div class="logo-icono">G</div><div class="logo-texto">GyverLabs</div></div>
+    <div id="nav-dashboard" class="nav-item activo" onclick="mostrarSeccion('dashboard')"><span class="nav-icono">📊</span> Dashboard</div>
+    <div id="nav-desercion" class="nav-item" onclick="mostrarSeccion('desercion')"><span class="nav-icono">⚠️</span> Deserción (SRD)</div>
+    <div id="nav-asistencia" class="nav-item" onclick="mostrarSeccion('asistencia')"><span class="nav-icono">✅</span> Asistencia</div>
+    <div id="nav-aula" class="nav-item" onclick="mostrarSeccion('aula')"><span class="nav-icono">📚</span> Aula Virtual</div>
+    <div id="nav-notas" class="nav-item" onclick="mostrarSeccion('notas')"><span class="nav-icono">📝</span> Notas</div>
+    <div id="nav-fse" class="nav-item" onclick="mostrarSeccion('fse')"><span class="nav-icono">💰</span> Contabilidad FSE</div>
+    <div id="nav-usuarios" class="nav-item" onclick="mostrarSeccion('usuarios')"><span class="nav-icono">👥</span> Usuarios</div>
+    <div class="tenant-info">I.E. San Pablo<br>Plan: Institucional · 842 estudiantes<br><span id="badge-conexion" style="display:inline-block; margin-top:6px; font-size:11px; color:#64748b;">⚪ Backend no conectado (datos de respaldo)</span></div>
+  </div>
+
+  <div class="contenido">
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div id="seccion-dashboard">
+      <div class="encabezado">
+        <div><h1>Dashboard institucional</h1><p>Vista general en tiempo real — I.E. San Pablo</p></div>
+        <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+      <div class="grid-kpi">
+        <div class="kpi"><div class="lbl">Estudiantes activos</div><div class="val">842</div></div>
+        <div class="kpi rojo"><div class="lbl">Alertas críticas SRD</div><div class="val">7</div></div>
+        <div class="kpi verde"><div class="lbl">Asistencia semanal</div><div class="val">91%</div></div>
+        <div class="kpi"><div class="lbl">Ejecución FSE</div><div class="val">64%</div></div>
+      </div>
+      <div class="panel">
+        <h3>Riesgo de deserción por grado <span class="sub">— clic para ver el detalle del salón</span></h3>
+        <div class="mapa-calor" id="mapa-calor"></div>
+      </div>
+      <div class="panel">
+        <h3>
+          Salones de la institución <span class="sub">— 24 grupos activos</span>
+          <button class="btn-mini" onclick="toggleSalones()" id="btn-toggle-salones">Ver todos los salones ▾</button>
+        </h3>
+        <div id="panel-salones" class="oculto">
+          <table class="tabla-simple">
+            <thead><tr><th>Grado</th><th>Jornada</th><th>Director de grupo</th><th># Estudiantes</th><th>En riesgo (mod.+crít.)</th><th>Asistencia prom.</th></tr></thead>
+            <tbody id="tabla-salones"></tbody>
+          </table>
+          <p style="font-size:12px; color:var(--gris); margin-top:10px;">Total institucional: <b id="total-estudiantes-salones"></b> estudiantes en <b id="total-salones"></b> salones.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Alertas más recientes</h3>
+        <div id="dashboard-alertas-recientes"></div>
+      </div>
+    </div>
+
+    <!-- ==================== DESERCIÓN SRD ==================== -->
+    <div id="seccion-desercion" class="oculto">
+      <div class="encabezado">
+        <div><h1>Score de Riesgo de Deserción (SRD)</h1><p>Cálculo semanal por estudiante — clic para ver el detalle completo</p></div>
+        <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+      <div class="grid-kpi" style="grid-template-columns:repeat(4,1fr);">
+        <div class="kpi rojo"><div class="lbl">Nivel crítico</div><div class="val" id="kpi-criticos">0</div></div>
+        <div class="kpi"><div class="lbl">Nivel moderado</div><div class="val" id="kpi-moderados">0</div></div>
+        <div class="kpi"><div class="lbl">Sin notificar a padres</div><div class="val" id="kpi-sin-notif-padre">0</div></div>
+        <div class="kpi"><div class="lbl">Sin notificar a rectoría</div><div class="val" id="kpi-sin-notif-rect">0</div></div>
+      </div>
+      <div class="panel">
+        <h3>Grado 901 <span class="sub">— 34 estudiantes</span></h3>
+        <div id="lista-srd"></div>
+        <div id="detalle-srd" class="oculto"></div>
+      </div>
+    </div>
+
+    <!-- ==================== ASISTENCIA ==================== -->
+    <div id="seccion-asistencia" class="oculto">
+      <div class="encabezado">
+        <div><h1>Registro de asistencia</h1><p id="asistencia-fecha-label">Grado 901 — martes 14 de julio de 2026</p></div>
+        <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+      <div class="panel">
+        <h3>Lista del día <span class="sub">Presente / Tarde / Excusa / Ausente</span></h3>
+        <table class="tabla-simple">
+          <thead><tr><th>Estudiante</th><th>Faltas acumuladas</th><th style="min-width:260px;">Estado de hoy</th></tr></thead>
+          <tbody id="tabla-asistencia"></tbody>
+        </table>
+        <div style="margin-top:14px; display:flex; gap:10px; align-items:center;">
+          <button class="btn-secundario verde" onclick="guardarAsistencia()">💾 Guardar asistencia del día</button>
+          <span id="msg-asistencia-guardada" style="font-size:13px; color:var(--verde); font-weight:600;"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Asistencia de la semana <span class="sub">% de presentes por día — grado 901</span></h3>
+        <div class="resumen-semana" id="resumen-semana"></div>
+      </div>
+    </div>
+
+    <!-- ==================== AULA VIRTUAL ==================== -->
+    <div id="seccion-aula" class="oculto">
+      <div class="encabezado">
+        <div><h1>Aula Virtual Coordinada</h1><p>Continuidad educativa — modo offline-first</p></div>
+        <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+      <div class="grid-kpi" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi"><div class="lbl">Materiales activos</div><div class="val" id="kpi-materiales">0</div></div>
+        <div class="kpi verde"><div class="lbl">Tareas entregadas</div><div class="val" id="kpi-entregadas">0</div></div>
+        <div class="kpi rojo"><div class="lbl">Tareas pendientes</div><div class="val" id="kpi-pendientes">0</div></div>
+      </div>
+      <div class="panel">
+        <h3>
+          Materiales y tareas — Grado 901
+          <button class="btn-secundario" onclick="toggleFormMaterial()">+ Nuevo material / tarea</button>
+        </h3>
+        <div id="form-material" class="form-grid oculto">
+          <div><label>Título</label><input id="mat-titulo" placeholder="Ej: Guía de números decimales"></div>
+          <div><label>Tipo</label><select id="mat-tipo"><option>📄 PDF</option><option>🎬 Video</option><option>📝 Evaluación</option><option>✏️ Tarea</option></select></div>
+          <div><label>Fecha de entrega</label><input id="mat-fecha" type="date"></div>
+          <div class="accion"><button class="btn-secundario verde" onclick="agregarMaterial()">Guardar</button></div>
+        </div>
+        <div id="lista-materiales"></div>
+      </div>
+    </div>
+
+    <!-- ==================== NOTAS ==================== -->
+    <div id="seccion-notas" class="oculto">
+      <div class="encabezado">
+        <div><h1>Notas académicas</h1><p>Seguimiento por período — Grado 901</p></div>
+        <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+      <div class="panel">
+        <h3>
+          Boletín por estudiante
+          <select id="select-estudiante-notas" onchange="renderNotas()" style="padding:6px 10px; border:1px solid var(--borde); border-radius:6px; font-size:13px;"></select>
+        </h3>
+        <table class="tabla-simple">
+          <thead><tr><th>Materia</th><th>Periodo 1</th><th>Periodo 2</th><th>Periodo 3</th><th>Periodo 4</th><th>Definitiva</th></tr></thead>
+          <tbody id="tabla-notas"></tbody>
+        </table>
+        <p style="margin-top:12px; font-size:14px;">Promedio general: <b id="promedio-general" style="font-size:17px;"></b></p>
+      </div>
+    </div>
+
+    <!-- ==================== CONTABILIDAD FSE ==================== -->
+    <div id="seccion-fse" class="oculto">
+      <div class="encabezado">
+        <div><h1>Contabilidad — Fondo de Servicios Educativos</h1><p>Catálogo General de Cuentas CGN · Decreto 4791 de 2008</p></div>
+        <button class="btn-salir no-imprimir" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+      <div class="grid-kpi" style="grid-template-columns:repeat(4,1fr);">
+        <div class="kpi verde"><div class="lbl">Ingresos del año</div><div class="val" id="kpi-ingresos"></div></div>
+        <div class="kpi rojo"><div class="lbl">Egresos del año</div><div class="val" id="kpi-egresos"></div></div>
+        <div class="kpi"><div class="lbl">Saldo disponible</div><div class="val" id="kpi-saldo"></div></div>
+        <div class="kpi"><div class="lbl">Ejecución presupuestal</div><div class="val" id="kpi-ejecucion"></div></div>
+      </div>
+
+      <div class="subtabs no-imprimir">
+        <button class="subtab activo" data-fsetab="movimientos" onclick="mostrarSubtabFSE('movimientos')">Movimientos</button>
+        <button class="subtab" data-fsetab="rp" onclick="mostrarSubtabFSE('rp')">Registros Presupuestales (RP)</button>
+        <button class="subtab" data-fsetab="plan" onclick="mostrarSubtabFSE('plan')">Plan Anual de Compras</button>
+        <button class="subtab" data-fsetab="informe" onclick="mostrarSubtabFSE('informe')">Informe de Auditoría</button>
+      </div>
+
+      <!-- Movimientos -->
+      <div id="fse-movimientos" class="panel">
+        <h3>
+          Ingresos y egresos
+          <button class="btn-secundario" onclick="toggleFormMovimiento()">+ Agregar movimiento</button>
+        </h3>
+        <div id="form-movimiento" class="form-grid oculto">
+          <div><label>Fecha</label><input id="mov-fecha" type="date"></div>
+          <div><label>Tipo</label><select id="mov-tipo"><option value="ingreso">Ingreso</option><option value="egreso">Egreso</option></select></div>
+          <div><label>Concepto</label><input id="mov-concepto" placeholder="Ej: Compra de tóner"></div>
+          <div><label>Proveedor / Origen</label><input id="mov-proveedor" placeholder="Ej: Papelería Central"></div>
+          <div><label>Cuenta CGN</label><input id="mov-cuenta" placeholder="Ej: 1524 Materiales"></div>
+          <div><label>Valor</label><input id="mov-valor" type="number" placeholder="Ej: 350000"></div>
+          <div class="accion"><button class="btn-secundario verde" onclick="agregarMovimiento()">Guardar</button></div>
+        </div>
+        <table class="tabla-simple">
+          <thead><tr><th>Fecha</th><th>Concepto</th><th>Proveedor</th><th>Cuenta CGN</th><th style="text-align:right;">Valor</th><th class="no-imprimir"></th></tr></thead>
+          <tbody id="tabla-fse"></tbody>
+        </table>
+      </div>
+
+      <!-- RP -->
+      <div id="fse-rp" class="panel oculto">
+        <h3>
+          Registros Presupuestales (RP)
+          <button class="btn-secundario" onclick="toggleFormRP()">+ Nuevo RP</button>
+        </h3>
+        <div id="form-rp" class="form-grid oculto">
+          <div><label>N° RP</label><input id="rp-numero" placeholder="Ej: RP-2026-014"></div>
+          <div><label>Fecha</label><input id="rp-fecha" type="date"></div>
+          <div><label>Proveedor</label><input id="rp-proveedor" placeholder="Ej: Distribuidora Escolar SAS"></div>
+          <div><label>Concepto / Contrato</label><input id="rp-concepto" placeholder="Ej: Contrato 018-2026"></div>
+          <div><label>Valor</label><input id="rp-valor" type="number" placeholder="Ej: 2400000"></div>
+          <div><label>Estado</label><select id="rp-estado"><option>Comprometido</option><option>Pagado</option></select></div>
+          <div class="accion"><button class="btn-secundario verde" onclick="agregarRP()">Guardar</button></div>
+        </div>
+        <table class="tabla-simple">
+          <thead><tr><th>N° RP</th><th>Fecha</th><th>Proveedor</th><th>Concepto / Contrato</th><th style="text-align:right;">Valor</th><th>Estado</th><th class="no-imprimir"></th></tr></thead>
+          <tbody id="tabla-rp"></tbody>
+        </table>
+      </div>
+
+      <!-- Plan anual de compras -->
+      <div id="fse-plan" class="panel oculto">
+        <h3>
+          Plan Anual de Compras 2026 <span class="sub">— ordenado por prioridad de necesidad</span>
+          <button class="btn-secundario" onclick="toggleFormPlan()">+ Agregar necesidad</button>
+        </h3>
+        <div id="form-plan" class="form-grid oculto">
+          <div><label>Mes previsto</label><select id="plan-mes"><option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option><option>Mayo</option><option>Junio</option><option selected>Julio</option><option>Agosto</option><option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option></select></div>
+          <div><label>Necesidad</label><input id="plan-item" placeholder="Ej: Sillas para aula 902"></div>
+          <div><label>Prioridad</label><select id="plan-prioridad"><option>Alta</option><option>Media</option><option>Baja</option></select></div>
+          <div><label>Valor estimado</label><input id="plan-valor" type="number" placeholder="Ej: 1800000"></div>
+          <div class="accion"><button class="btn-secundario verde" onclick="agregarPlan()">Guardar</button></div>
+        </div>
+        <table class="tabla-simple">
+          <thead><tr><th>Prioridad</th><th>Mes</th><th>Necesidad</th><th style="text-align:right;">Valor estimado</th><th>Estado</th><th class="no-imprimir"></th></tr></thead>
+          <tbody id="tabla-plan"></tbody>
+        </table>
+      </div>
+
+      <!-- Informe de auditoría -->
+      <div id="fse-informe" class="panel oculto">
+        <h3>
+          Informe de balance para auditoría
+          <span>
+            <button class="btn-secundario no-imprimir" onclick="generarInforme()">📊 Generar informe</button>
+            <button class="btn-secundario gris no-imprimir" onclick="window.print()">🖨️ Imprimir / exportar PDF</button>
+          </span>
+        </h3>
+        <div id="informe-contenido">
+          <p style="color:var(--gris); font-size:13px;">Haz clic en "Generar informe" para compilar los pagos frente a los precios de referencia de SECOP II.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== USUARIOS ==================== -->
+    <div id="seccion-usuarios" class="oculto">
+      <div class="encabezado">
+        <div><h1>Usuarios del sistema</h1><p>Roles y accesos — I.E. San Pablo</p></div>
+        <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+      <div class="panel">
+        <h3>
+          Personal registrado
+          <button class="btn-secundario" onclick="toggleFormUsuario()">+ Agregar usuario</button>
+        </h3>
+        <div id="form-usuario" class="form-grid oculto">
+          <div><label>Nombre completo</label><input id="usr-nombre" placeholder="Ej: Laura Jiménez"></div>
+          <div><label>Rol</label><select id="usr-rol"><option>Rector</option><option>Coordinador</option><option>Docente</option><option>Secretaría académica</option><option>Contador FSE</option></select></div>
+          <div><label>Correo institucional</label><input id="usr-correo" placeholder="Ej: laura.jimenez@iesanpablo.edu.co"></div>
+          <div class="accion"><button class="btn-secundario verde" onclick="agregarUsuario()">Guardar</button></div>
+        </div>
+        <table class="tabla-simple">
+          <thead><tr><th>Nombre</th><th>Rol</th><th>Correo</th><th>Estado</th><th class="no-imprimir"></th></tr></thead>
+          <tbody id="tabla-usuarios"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ---- CHAT AGENTE IA ---- -->
+<div id="vista-app-chat" class="oculto">
+  <div class="chat-flotante" onclick="toggleChat()">💬</div>
+  <div id="chat-caja" class="chat-caja oculto">
+    <div class="chat-cabecera">Asistente GyverLabs</div>
+    <div class="chat-cuerpo" id="chat-cuerpo">
+      <div class="msg-bot">Hola, soy el asistente de I.E. San Pablo. Pregúntame por tus notas, asistencia o entregas.</div>
+    </div>
+    <div class="chat-input">
+      <input id="chat-input-txt" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter') enviarChat()">
+      <button onclick="enviarChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

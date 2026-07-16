@@ -1,0 +1,68 @@
+LICENCIA DE EVALUACIÓN GYVERLABS v1.0
+Copyright (c) 2026 Juan David Quesada Barrera / GyverLabs. Todos los derechos reservados.
+
+1. OBJETO
+
+Este repositorio y todo su contenido (código fuente, documentación, diagramas,
+esquemas de base de datos, nombres de módulos, arquitectura y cualquier otro
+material incluido) es propiedad exclusiva de Juan David Quesada Barrera,
+en adelante "el Autor", creador de GyverLabs.
+
+Se publica de forma pública ÚNICAMENTE para dar cumplimiento al requisito de
+entrega de repositorio establecido en los Términos de Referencia del
+"Concurso Datos al Ecosistema 2026: IA para Colombia" del Ministerio de
+Tecnologías de la Información y las Comunicaciones (MinTIC) de Colombia,
+y para permitir su evaluación técnica por el jurado del concurso.
+
+2. DERECHOS QUE NO SE CONCEDEN
+
+La visibilidad pública de este repositorio NO constituye una licencia de
+código abierto ni una cesión de derechos de autor. Queda expresamente
+prohibido, sin autorización previa y por escrito del Autor:
+
+  a) Copiar, reproducir o redistribuir, total o parcialmente, el código,
+     la documentación o los diagramas contenidos en este repositorio.
+  b) Modificar, adaptar o crear obras derivadas a partir de este material.
+  c) Usar este material, total o parcialmente, con fines comerciales,
+     institucionales o de producción, dentro o fuera de Colombia.
+  d) Publicar, sublicenciar o transferir a terceros cualquier parte de
+     este contenido.
+  e) Utilizar el nombre "GyverLabs", su marca, logotipos o identidad
+     visual asociada.
+
+3. DERECHOS QUE SÍ SE CONCEDEN
+
+Se autoriza expresamente:
+
+  a) Al jurado, evaluadores técnicos y funcionarios designados por el
+     Ministerio TIC en el marco del Concurso Datos al Ecosistema 2026,
+     la lectura, clonación local y ejecución de este repositorio con el
+     único fin de evaluar la propuesta dentro del proceso del concurso.
+  b) A cualquier persona, la lectura del código y la documentación con
+     fines de referencia o aprendizaje personal no comercial, sin que
+     ello implique derecho de reutilización.
+
+4. PROPIEDAD INTELECTUAL PREEXISTENTE
+
+El sistema completo de GyverLabs —incluyendo los módulos de cálculo del
+Score de Riesgo de Deserción (SRD), las reglas de negocio de scoring,
+los pipelines de entrenamiento de modelos y las integraciones con fuentes
+de datos institucionales— existe en su versión completa en un repositorio
+privado del Autor, con evidencia de autoría y fecha anterior a la
+publicación de este repositorio de evaluación. Este repositorio contiene
+una versión reducida y/o con componentes simulados ("stubs") de dicho
+sistema, según se indica explícitamente en los comentarios del código.
+
+5. SIN GARANTÍA
+
+ESTE SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO,
+EXPRESA O IMPLÍCITA. EL AUTOR NO SERÁ RESPONSABLE POR NINGÚN RECLAMO,
+DAÑO U OTRA RESPONSABILIDAD DERIVADA DEL USO DE ESTE MATERIAL.
+
+6. LEY APLICABLE
+
+Esta licencia se rige por las leyes de la República de Colombia, incluida
+la Ley 23 de 1982 sobre derechos de autor y la Decisión Andina 351 de 1993.
+
+Para solicitar autorización de uso ampliado, contactar al Autor:
+Juan David Quesada Barrera — CEO GyverLabs — San Pablo, Sur de Bolívar, Colombia

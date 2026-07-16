@@ -1,0 +1,22 @@
+{
+  "name": "gyverlabs-frontend",
+  "version": "0.1.0-evaluacion",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zustand": "4.5.2"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5",
+    "tailwindcss": "3.4.4",
+    "@types/react": "18.3.3",
+    "@types/node": "20.14.2"
+  }
+}
