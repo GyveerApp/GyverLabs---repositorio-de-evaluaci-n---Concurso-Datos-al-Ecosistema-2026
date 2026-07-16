@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import settings
-from routers import auth, academico, asistencia, srd, fse
+from routers import auth, academico, asistencia, srd, fse, censo
 
 app = FastAPI(
     title="GyverLabs API",
@@ -31,6 +31,7 @@ app.include_router(academico.router, prefix="/academico", tags=["Estructura acad
 app.include_router(asistencia.router, prefix="/asistencia", tags=["Asistencia y alertas"])
 app.include_router(srd.router, prefix="/srd", tags=["Score de Riesgo de Deserción"])
 app.include_router(fse.router, prefix="/fse", tags=["Contabilidad FSE"])
+app.include_router(censo.router, prefix="/censo", tags=["Censo Juvenil Territorial"])
 
 
 @app.get("/health")

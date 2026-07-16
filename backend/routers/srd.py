@@ -17,11 +17,16 @@ def _scores_actuales(db: Session):
     if df.empty:
         raise HTTPException(500, "Base de datos vacía. Ejecuta: python seed_data.py")
     resultados = calcular_srd_para_dataframe(df)
-    nombres = {e.id: (e.nombre, e.grado) for e in db.query(Estudiante).all()}
+    info = {
+        e.id: (e.nombre, e.grado, e.nivel_sisben, e.zona)
+        for e in db.query(Estudiante).all()
+    }
     for r in resultados:
-        nombre, grado = nombres.get(r["estudiante_id"], ("Desconocido", "-"))
+        nombre, grado, nivel_sisben, zona = info.get(r["estudiante_id"], ("Desconocido", "-", "-", "-"))
         r["nombre"] = nombre
         r["grado"] = grado
+        r["nivel_sisben"] = nivel_sisben
+        r["zona"] = zona
     return resultados
 
 

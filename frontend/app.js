@@ -22,32 +22,32 @@ const salones = [
 
 /* ---------------- ESTUDIANTES SRD (grado 901) ---------------- */
 const estudiantesSRD = [
-  {n:'Camila Herrera', g:'901', score:0.82, nivel:'CRÍTICO', faltas:11,
-   factores:['Asistencia del 68% en las últimas 4 semanas','Caída de 1.4 puntos en el promedio académico','Sin intervención registrada en 45 días'],
+  {n:'Camila Herrera', g:'901', score:0.82, nivel:'CRÍTICO', faltas:11, sisben:'A1', zona:'rural',
+   factores:['Asistencia del 68% en las últimas 4 semanas','Caída de 1.4 puntos en el promedio académico','Sin intervención registrada en 45 días','Hogar clasificado en SISBEN A1'],
    notifPadre:{enviado:false, fecha:null}, notifRectoria:{enviado:false, fecha:null},
    acudiente:'María Herrera · 300 456 7891',
    historial:['12 jun 2026 — Llamada de seguimiento del coordinador','02 may 2026 — Citación a acudiente (no asistió)']},
-  {n:'Julián Rueda', g:'901', score:0.74, nivel:'CRÍTICO', faltas:9,
-   factores:['Sin intervención registrada hace 70 días','Distancia geográfica alta al plantel','Reprobó 2 materias el período anterior'],
+  {n:'Julián Rueda', g:'901', score:0.74, nivel:'CRÍTICO', faltas:9, sisben:'A2', zona:'rural',
+   factores:['Sin intervención registrada hace 70 días','Distancia geográfica alta al plantel','Reprobó 2 materias el período anterior','Hogar clasificado en SISBEN A2'],
    notifPadre:{enviado:true, fecha:'10 jul 2026'}, notifRectoria:{enviado:false, fecha:null},
    acudiente:'Pedro Rueda · 301 220 9981',
    historial:['10 jul 2026 — Notificación enviada al acudiente vía WhatsApp']},
-  {n:'Valentina Ríos', g:'901', score:0.58, nivel:'MODERADO', faltas:5,
+  {n:'Valentina Ríos', g:'901', score:0.58, nivel:'MODERADO', faltas:5, sisben:'B1', zona:'urbana',
    factores:['Asistencia irregular los días viernes','Tendencia a la baja en matemáticas'],
    notifPadre:{enviado:true, fecha:'05 jul 2026'}, notifRectoria:{enviado:true, fecha:'06 jul 2026'},
    acudiente:'Liliana Ríos · 300 998 1122',
    historial:['06 jul 2026 — Rectoría informada','05 jul 2026 — Notificación al acudiente']},
-  {n:'Andrés Pardo', g:'901', score:0.44, nivel:'MODERADO', faltas:4,
+  {n:'Andrés Pardo', g:'901', score:0.44, nivel:'MODERADO', faltas:4, sisben:'B2', zona:'urbana',
    factores:['Bajó una materia este período'],
    notifPadre:{enviado:false, fecha:null}, notifRectoria:{enviado:false, fecha:null},
    acudiente:'Jorge Pardo · 315 667 2200',
    historial:[]},
-  {n:'Sofía Martínez', g:'901', score:0.31, nivel:'LEVE', faltas:2,
+  {n:'Sofía Martínez', g:'901', score:0.31, nivel:'LEVE', faltas:2, sisben:'B2', zona:'urbana',
    factores:['Variación leve en asistencia'],
    notifPadre:{enviado:false, fecha:null}, notifRectoria:{enviado:false, fecha:null},
    acudiente:'Claudia Martínez · 320 445 8871',
    historial:[]},
-  {n:'Kevin Duarte', g:'901', score:0.12, nivel:'SIN RIESGO', faltas:0,
+  {n:'Kevin Duarte', g:'901', score:0.12, nivel:'SIN RIESGO', faltas:0, sisben:'C1', zona:'urbana',
    factores:['Sin variables en alerta'],
    notifPadre:{enviado:false, fecha:null}, notifRectoria:{enviado:false, fecha:null},
    acudiente:'Marta Duarte · 300 112 4456',
@@ -55,6 +55,7 @@ const estudiantesSRD = [
 ];
 const coloresNivel = {'CRÍTICO':'critico', 'MODERADO':'moderado', 'LEVE':'leve', 'SIN RIESGO':'sinriesgo'};
 const coloresBarra = {'CRÍTICO':'var(--rojo)', 'MODERADO':'var(--amarillo)', 'LEVE':'var(--azul-claro)', 'SIN RIESGO':'var(--verde)'};
+const coloresSisben = {'A1':'critico', 'A2':'critico', 'B1':'moderado', 'B2':'leve', 'C1':'sinriesgo'};
 
 /* ---------------- ASISTENCIA (estado del día en memoria) ---------------- */
 const estadosAsistenciaHoy = {};
@@ -115,6 +116,90 @@ let usuarios = [
   {nombre:'Rectoría — Ignacio Correa', rol:'Rector', correo:'rectoria@iesanpablo.edu.co', estado:'Activo'},
 ];
 
+/* ---------------- CENSO JUVENIL TERRITORIAL ---------------- */
+/* Simulación 100% sintética — cruce SISBEN + educación + Sistema de
+   Alertas Tempranas (SAT, Defensoría del Pueblo), por departamento y
+   municipio. En producción esto se alimenta de /censo/* en el backend
+   (ver backend/routers/censo.py y backend/seed_data.py). */
+const NOMBRES_CENSO = ['Mariana','Santiago','Valentina','Samuel','Isabella','Mateo','Sofía','Juan','Camila','Andrés','Luciana','David','Gabriela','Sebastián','Salomé','Nicolás','Antonella','Emmanuel','Danna','Jerónimo','Yuliana','Kevin','Paula','Cristian','Laura','Brayan','Karen','Miguel','Daniela','Julián','Natalia','Esteban','Yesenia','Yeison','Dayana','Deiby','Yuliet','Anderson','Leidy','Jhon'];
+const APELLIDOS_CENSO = ['Pérez','Rodríguez','Martínez','López','García','Hernández','González','Torres','Ramírez','Flórez','Suárez','Ortiz','Castro','Vargas','Rueda','Mendoza','Peñaranda','Villamizar','Gómez','Cárdenas','Contreras','Rojas'];
+
+const GEO_CENSO = {
+  'Santander': {
+    'Bucaramanga': {zonaPred:'urbana', riesgoBase:0.16, lugares:['Comuna Nororiental','Barrio Kennedy','Barrio Café Madrid','Barrio La Concordia','Barrio Girardot','Barrio La Joya']},
+    'Barrancabermeja': {zonaPred:'urbana', riesgoBase:0.30, lugares:['Comuna 1 — Miraflores','Comuna 7 — El Danubio','Corregimiento El Llanito','Comuna 5 — Torcoroma','Barrio Provivienda']},
+    'Puerto Wilches': {zonaPred:'rural', riesgoBase:0.28, lugares:['Vereda Puente Sogamoso','Corregimiento Bocas del Rosario','Vereda El Guamo','Casco urbano Puerto Wilches']},
+    'Floridablanca': {zonaPred:'urbana', riesgoBase:0.12, lugares:['Barrio Caldas','Barrio Bucarica','Barrio Cañaveral','Barrio Lagos']},
+  },
+  'Bolívar': {
+    'San Pablo': {zonaPred:'rural', riesgoBase:0.34, lugares:['Vereda La Fortuna','Corregimiento Cerro Azul','Vereda El Paraíso','Casco urbano San Pablo','Vereda La Ceiba']},
+    'Santa Rosa del Sur': {zonaPred:'rural', riesgoBase:0.33, lugares:['Vereda Buena Vista','Corregimiento Cerro Burgos','Vereda La Fría','Casco urbano Santa Rosa del Sur']},
+    'Simití': {zonaPred:'rural', riesgoBase:0.31, lugares:['Vereda Monterrey','Corregimiento Vallecito','Casco urbano Simití']},
+    'Cartagena': {zonaPred:'urbana', riesgoBase:0.14, lugares:['Barrio Olaya Herrera','Barrio Nelson Mandela','Barrio El Pozón','Barrio San José de los Campanitos']},
+  },
+};
+const MOTIVOS_NO_ESTUDIA = ['Trabajo agrícola o informal para aportar al hogar','Cuidado de hermanos u otros familiares','Embarazo o maternidad temprana','Distancia o falta de transporte al establecimiento','Falta de cupo escolar disponible','Desmotivación tras repitencia previa','Desplazamiento o cambio de residencia reciente','Documentos o registro civil pendiente de trámite'];
+const TIPOS_ALERTA_CENSO = ['Riesgo de reclutamiento, uso o utilización por grupos armados','Riesgo de violencia sexual','Riesgo de trabajo infantil','Riesgo de desplazamiento forzado','Zona con restricciones de movilidad (confinamiento)','Violencia intrafamiliar reportada','Riesgo de unión temprana / embarazo adolescente','Entorno con consumo de sustancias psicoactivas'];
+const ESTADOS_SEGUIMIENTO_CENSO = ['Sin contactar','En seguimiento','Contactado — caso cerrado'];
+const COLEGIOS_REF_CENSO = ['I.E. San Pablo','I.E. Normal Superior','I.E. Técnica Agropecuaria','I.E. La Esperanza','I.E. Simón Bolívar','I.E. Rural Integrada'];
+const N_CENSO_POR_MUNICIPIO = 40;
+
+function elegir(lista){ return lista[Math.floor(Math.random()*lista.length)]; }
+function elegirPonderado(lista, pesos){
+  const total = pesos.reduce((a,b)=>a+b,0);
+  let r = Math.random()*total;
+  for(let i=0;i<lista.length;i++){ r -= pesos[i]; if(r<=0) return lista[i]; }
+  return lista[lista.length-1];
+}
+function muestraSinRepetir(lista, k){
+  const copia = [...lista]; const out=[];
+  for(let i=0;i<k && copia.length;i++){ out.push(copia.splice(Math.floor(Math.random()*copia.length),1)[0]); }
+  return out;
+}
+
+function generarCensoJuvenil(){
+  const registros = [];
+  let id = 1;
+  for(const depto in GEO_CENSO){
+    for(const municipio in GEO_CENSO[depto]){
+      const meta = GEO_CENSO[depto][municipio];
+      for(let i=0;i<N_CENSO_POR_MUNICIPIO;i++){
+        const edad = 12 + Math.floor(Math.random()*6);
+        const sexo = Math.random()<0.5 ? 'M' : 'F';
+        const zona = Math.random()<0.75 ? meta.zonaPred : (meta.zonaPred==='urbana'?'rural':'urbana');
+        const lugar = elegir(meta.lugares);
+        const nivel = zona==='rural'
+          ? elegirPonderado(['A1','A2','B1','B2','C1'], [0.30,0.27,0.20,0.14,0.09])
+          : elegirPonderado(['A1','A2','B1','B2','C1'], [0.14,0.20,0.28,0.22,0.16]);
+
+        let propension = Math.min(1, (Math.random()*0.4 + Math.random()*0.2) + meta.riesgoBase*0.6);
+        const estudia = Math.random() > (0.14 + propension*0.30);
+        const motivo = estudia ? null : elegir(MOTIVOS_NO_ESTUDIA);
+        const colegio = estudia ? elegir(COLEGIOS_REF_CENSO) : null;
+
+        const probZonaRiesgo = meta.riesgoBase + (estudia?0:0.10) + propension*0.15;
+        const zonaRiesgo = Math.random() < Math.min(0.65, probZonaRiesgo);
+        let tipoAlerta = [];
+        if(zonaRiesgo){ tipoAlerta = muestraSinRepetir(TIPOS_ALERTA_CENSO, Math.random()<0.7?1:2); }
+
+        let estado = 'Sin contactar', ultimoContacto = null;
+        if(zonaRiesgo || !estudia){
+          estado = elegirPonderado(ESTADOS_SEGUIMIENTO_CENSO, [0.45,0.35,0.20]);
+        }
+
+        registros.push({
+          id: id++, nombre: `${elegir(NOMBRES_CENSO)} ${elegir(APELLIDOS_CENSO)} ${elegir(APELLIDOS_CENSO)}`,
+          edad, sexo, departamento: depto, municipio, zona, barrioVereda: lugar,
+          sisben: nivel, estudia, motivoNoEstudia: motivo, colegio,
+          zonaRiesgo, tipoAlerta, ultimoContacto, estadoSeguimiento: estado,
+        });
+      }
+    }
+  }
+  return registros;
+}
+let censoJuvenil = generarCensoJuvenil();
+
 /* ============================================================
    AUTENTICACIÓN
    ============================================================ */
@@ -131,10 +216,11 @@ function cerrarSesion(){
   document.getElementById('vista-login').classList.remove('oculto');
 }
 function mostrarSeccion(id){
-  ['dashboard','desercion','asistencia','aula','notas','fse','usuarios'].forEach(s=>{
+  ['dashboard','desercion','censo','asistencia','aula','notas','fse','usuarios'].forEach(s=>{
     document.getElementById('seccion-'+s).classList.toggle('oculto', s!==id);
     document.getElementById('nav-'+s).classList.toggle('activo', s===id);
   });
+  if(id==='censo') renderCenso();
 }
 
 /* ============================================================
@@ -146,6 +232,9 @@ function renderTodo(){
   renderAlertasDashboard();
   renderKpisSRD();
   renderListaSRD();
+  renderAlertaSisbenBanner();
+  inicializarSelectoresCenso();
+  renderCenso();
   renderAsistencia();
   renderResumenSemana();
   renderMateriales();
@@ -210,6 +299,26 @@ function renderKpisSRD(){
   document.getElementById('kpi-moderados').textContent = estudiantesSRD.filter(e=>e.nivel==='MODERADO').length;
   document.getElementById('kpi-sin-notif-padre').textContent = estudiantesSRD.filter(e=>!e.notifPadre.enviado && (e.nivel==='CRÍTICO'||e.nivel==='MODERADO')).length;
   document.getElementById('kpi-sin-notif-rect').textContent = estudiantesSRD.filter(e=>!e.notifRectoria.enviado && e.nivel==='CRÍTICO').length;
+  document.getElementById('kpi-prioridad-sisben').textContent = estudiantesSRD.filter(e=>(e.sisben==='A1'||e.sisben==='A2') && (e.nivel==='CRÍTICO'||e.nivel==='MODERADO')).length;
+}
+
+function renderAlertaSisbenBanner(){
+  const banner = document.getElementById('alerta-sisben-banner');
+  const prioritarios = estudiantesSRD
+    .filter(e=>(e.sisben==='A1'||e.sisben==='A2') && (e.nivel==='CRÍTICO'||e.nivel==='MODERADO'))
+    .sort((a,b)=>b.score-a.score);
+  if(!prioritarios.length){ banner.classList.add('oculto'); return; }
+  banner.classList.remove('oculto');
+  banner.innerHTML = `
+    <h3 style="color:var(--rojo);">⚠️ Alerta cruzada SISBEN + Deserción <span class="sub" style="color:#991b1b;">hogares en SISBEN A1/A2 con riesgo crítico o moderado — prioridad de intervención</span></h3>
+    ${prioritarios.map(e=>`
+      <div class="fila-estudiante" onclick="irADesercion()">
+        <div><span class="nombre">${e.n}</span><span class="grado">grado ${e.g} · zona ${e.zona}</span></div>
+        <div style="display:flex; gap:6px;">
+          <span class="badge ${coloresSisben[e.sisben]}">SISBEN ${e.sisben}</span>
+          <span class="badge ${coloresNivel[e.nivel]}">${e.nivel} · ${Math.round(e.score*100)}%</span>
+        </div>
+      </div>`).join('')}`;
 }
 
 function renderListaSRD(){
@@ -219,7 +328,10 @@ function renderListaSRD(){
     const fila = document.createElement('div');
     fila.className = 'fila-estudiante';
     fila.innerHTML = `<div><span class="nombre">${e.n}</span><span class="grado">grado ${e.g} · ${e.faltas} faltas acum.</span></div>
-      <span class="badge ${coloresNivel[e.nivel]}">${e.nivel} · ${Math.round(e.score*100)}%</span>`;
+      <div style="display:flex; gap:6px;">
+        <span class="badge ${coloresSisben[e.sisben]||'gris'}">SISBEN ${e.sisben||'—'}</span>
+        <span class="badge ${coloresNivel[e.nivel]}">${e.nivel} · ${Math.round(e.score*100)}%</span>
+      </div>`;
     fila.onclick = () => mostrarDetalleSRD(i);
     lista.appendChild(fila);
   });
@@ -236,6 +348,7 @@ function mostrarDetalleSRD(i){
 
       <div class="grid-detalle">
         <div class="mini-dato"><div class="lbl">Faltas acumuladas</div><div class="val">${e.faltas}</div></div>
+        <div class="mini-dato"><div class="lbl">Nivel SISBEN</div><div class="val"><span class="badge ${coloresSisben[e.sisben]||'gris'}">${e.sisben||'—'}</span></div></div>
         <div class="mini-dato"><div class="lbl">Acudiente</div><div class="val" style="font-size:12.5px;">${e.acudiente}</div></div>
         <div class="mini-dato"><div class="lbl">Notif. al padre</div><div class="val" style="font-size:13px; color:${e.notifPadre.enviado?'var(--verde)':'var(--rojo)'};">${e.notifPadre.enviado ? '✔ '+e.notifPadre.fecha : 'Pendiente'}</div></div>
         <div class="mini-dato"><div class="lbl">Notif. a rectoría</div><div class="val" style="font-size:13px; color:${e.notifRectoria.enviado?'var(--verde)':'var(--rojo)'};">${e.notifRectoria.enviado ? '✔ '+e.notifRectoria.fecha : 'Pendiente'}</div></div>
@@ -279,6 +392,84 @@ function activarIntervencion(i){
   const hoy = new Date().toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric'});
   e.historial.unshift(hoy + ' — Protocolo de intervención institucional activado');
   mostrarDetalleSRD(i);
+}
+
+/* ============================================================
+   2.B CENSO JUVENIL TERRITORIAL — filtro por depto/municipio
+   ============================================================ */
+function inicializarSelectoresCenso(){
+  const selDepto = document.getElementById('censo-departamento');
+  if(selDepto.options.length) return; // ya inicializado
+  Object.keys(GEO_CENSO).forEach(d=>{
+    const opt = document.createElement('option'); opt.value = d; opt.textContent = d;
+    selDepto.appendChild(opt);
+  });
+  poblarMunicipiosCenso(selDepto.value);
+}
+function poblarMunicipiosCenso(depto){
+  const selMunicipio = document.getElementById('censo-municipio');
+  selMunicipio.innerHTML = '';
+  Object.keys(GEO_CENSO[depto]).forEach(m=>{
+    const opt = document.createElement('option'); opt.value = m; opt.textContent = m;
+    selMunicipio.appendChild(opt);
+  });
+}
+function cambiarDepartamentoCenso(){
+  const depto = document.getElementById('censo-departamento').value;
+  poblarMunicipiosCenso(depto);
+  renderCenso();
+}
+function mostrarSubtabCenso(tab){
+  document.querySelectorAll('[data-censotab]').forEach(b=>b.classList.toggle('activo', b.dataset.censotab===tab));
+  document.getElementById('censo-tab-fuera').classList.toggle('oculto', tab!=='fuera');
+  document.getElementById('censo-tab-riesgo').classList.toggle('oculto', tab!=='riesgo');
+}
+function renderCenso(){
+  const depto = document.getElementById('censo-departamento').value;
+  const municipio = document.getElementById('censo-municipio').value;
+  if(!depto || !municipio) return;
+
+  const registros = censoJuvenil.filter(r=>r.departamento===depto && r.municipio===municipio);
+  const total = registros.length;
+  const fuera = registros.filter(r=>!r.estudia);
+  const riesgo = registros.filter(r=>r.zonaRiesgo);
+  const dobleVulnerabilidad = registros.filter(r=>r.zonaRiesgo && !r.estudia);
+
+  document.getElementById('censo-kpi-total').textContent = total;
+  document.getElementById('censo-kpi-fuera').textContent = `${fuera.length} (${total?Math.round(100*fuera.length/total):0}%)`;
+  document.getElementById('censo-kpi-riesgo').textContent = `${riesgo.length} (${total?Math.round(100*riesgo.length/total):0}%)`;
+  document.getElementById('censo-kpi-doble').textContent = dobleVulnerabilidad.length;
+
+  const banner = document.getElementById('censo-alerta-resumen');
+  if(dobleVulnerabilidad.length){
+    banner.classList.remove('oculto');
+    banner.innerHTML = `<h3 style="color:var(--rojo); margin:0;">⚠️ ${dobleVulnerabilidad.length} joven(es) en ${municipio} están FUERA del sistema educativo Y en zona con alerta activa — prioridad máxima de seguimiento.</h3>`;
+  } else {
+    banner.classList.add('oculto');
+  }
+
+  document.getElementById('censo-fuera-contador').textContent = `— ${fuera.length} jóvenes en ${municipio}, ${depto}`;
+  document.getElementById('censo-tabla-fuera').innerHTML = fuera.map(r=>`
+    <tr ${r.zonaRiesgo?'style="background:var(--rojo-fondo);"':''}>
+      <td>${r.nombre}${r.zonaRiesgo?' <span class="badge critico" style="margin-left:4px;">doble vulnerabilidad</span>':''}</td>
+      <td>${r.edad}</td>
+      <td>${r.sexo}</td>
+      <td>${r.barrioVereda}</td>
+      <td><span class="badge ${coloresSisben[r.sisben]||'gris'}">${r.sisben}</span></td>
+      <td style="font-size:12.5px;">${r.motivoNoEstudia}</td>
+      <td><span class="badge ${r.estadoSeguimiento==='Sin contactar'?'critico':r.estadoSeguimiento==='En seguimiento'?'moderado':'sinriesgo'}">${r.estadoSeguimiento}</span></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="color:var(--gris); text-align:center; padding:20px;">Sin jóvenes fuera del sistema educativo registrados en este municipio.</td></tr>';
+
+  document.getElementById('censo-riesgo-contador').textContent = `— ${riesgo.length} jóvenes en ${municipio}, ${depto}`;
+  document.getElementById('censo-tabla-riesgo').innerHTML = riesgo.map(r=>`
+    <tr ${!r.estudia?'style="background:var(--rojo-fondo);"':''}>
+      <td>${r.nombre}${!r.estudia?' <span class="badge critico" style="margin-left:4px;">doble vulnerabilidad</span>':''}</td>
+      <td>${r.edad}</td>
+      <td style="font-size:12.5px;">${r.colegio||'—'}</td>
+      <td>${r.barrioVereda}</td>
+      <td style="font-size:12.5px;">${r.tipoAlerta.join(' · ')}</td>
+      <td><span class="badge ${r.estadoSeguimiento==='Sin contactar'?'critico':r.estadoSeguimiento==='En seguimiento'?'moderado':'sinriesgo'}">${r.estadoSeguimiento}</span></td>
+    </tr>`).join('') || '<tr><td colspan="6" style="color:var(--gris); text-align:center; padding:20px;">Sin alertas de zona de riesgo registradas en este municipio.</td></tr>';
 }
 
 /* ============================================================
@@ -644,11 +835,12 @@ async function conectarBackend(){
     const salud = await fetchConTimeout(BACKEND_URL + '/health');
     if(!salud.ok) throw new Error('backend no saludable');
 
-    const [tablero, ranking, resumenFSE, movsFSE] = await Promise.all([
+    const [tablero, ranking, resumenFSE, movsFSE, censoBackend] = await Promise.all([
       fetchConTimeout(BACKEND_URL + '/srd/tablero').then(r=>r.json()),
       fetchConTimeout(BACKEND_URL + '/srd/ranking?limite=80').then(r=>r.json()),
       fetchConTimeout(BACKEND_URL + '/fse/resumen').then(r=>r.json()).catch(()=>null),
       fetchConTimeout(BACKEND_URL + '/fse/movimientos?limite=20').then(r=>r.json()).catch(()=>null),
+      fetchConTimeout(BACKEND_URL + '/censo/jovenes').then(r=>r.json()).catch(()=>null),
     ]);
 
     // 1. Mapa de calor y salones reales (por grado)
@@ -668,6 +860,7 @@ async function conectarBackend(){
           estudiantesSRD.push({
             n: r.nombre, g: r.grado, score: r.score, nivel: r.nivel,
             faltas: Math.round(r.score*15),
+            sisben: r.nivel_sisben, zona: r.zona,
             factores: r.factores,
             notifPadre: {enviado: i%2===0, fecha: i%2===0 ? '10 jul 2026' : null},
             notifRectoria: {enviado: false, fecha: null},
@@ -688,6 +881,18 @@ async function conectarBackend(){
       movimientosFSE = movsFSE.map(m=>({
         f:m.fecha, c:m.concepto, proveedor:'Registrado en el FSE institucional',
         cuenta:m.cuenta_cgn, tipo: m.valor>=0 ? 'ingreso':'egreso', v: Math.abs(m.valor),
+      }));
+    }
+
+    // 4. Censo Juvenil Territorial real (si el backend respondió)
+    if(censoBackend && censoBackend.length){
+      censoJuvenil = censoBackend.map((r,i)=>({
+        id: i+1, nombre: r.nombre, edad: r.edad, sexo: r.sexo,
+        departamento: r.departamento, municipio: r.municipio, zona: r.zona,
+        barrioVereda: r.barrio_vereda, sisben: r.nivel_sisben,
+        estudia: r.estudia, motivoNoEstudia: r.motivo_no_estudia, colegio: r.colegio,
+        zonaRiesgo: r.zona_riesgo, tipoAlerta: r.tipo_alerta || [],
+        ultimoContacto: r.ultimo_contacto, estadoSeguimiento: r.estado_seguimiento,
       }));
     }
 

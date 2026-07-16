@@ -4,7 +4,7 @@ Esto te deja el sistema completo corriendo en tu computador: backend real (API +
 
 ---
 
-## Opción A — Automática 
+## Opción A — Automática (recomendada)
 
 **Mac / Linux:**
 ```bash
@@ -26,15 +26,15 @@ Esto crea el entorno virtual `myenv`, instala todo, genera los datos sintéticos
 ## Opción B — Manual, paso a paso (para entender o si la automática falla)
 
 ### 1. Abre una terminal en la carpeta del proyecto
-
+```bash
 cd gyverlabs-showcase/backend
 ```
 
 ### 2. Crea el entorno virtual llamado `myenv`
-
-python -m venv myenv
+```bash
+python3 -m venv myenv
 ```
-
+(En Windows usa `python` en vez de `python3` si `python3` no se reconoce.)
 
 ### 3. Actívalo
 ```bash
@@ -50,24 +50,24 @@ myenv\Scripts\Activate.ps1
 Cuando está activo, ves `(myenv)` al inicio de la línea de tu terminal.
 
 ### 4. Instala las dependencias
-
+```bash
 pip install -r requirements.txt
 ```
 
 ### 5. Genera el conjunto de datos sintético (una sola vez)
-
+```bash
 python seed_data.py
 ```
-Esto crea `gyverlabs_demo.db` con 840 estudiantes simulados, su historial de asistencia, notas y los movimientos contables del FSE. Ningún dato es real.
+Esto crea `gyverlabs_demo.db` con 840 estudiantes simulados, su historial de asistencia, notas, los movimientos contables del FSE, y el censo juvenil territorial (440 jóvenes simulados en 8 municipios de Santander y Bolívar). Ningún dato es real.
 
 ### 6. Entrena el modelo de IA (una sola vez)
-
+```bash
 python ml/train_demo.py
 ```
 Esto entrena un LightGBM real sobre los datos sintéticos y muestra las métricas reales (AUC-ROC, precisión, recall) en la terminal — cópialas, las necesitas para la sección de Resultados del documento y la presentación.
 
 ### 7. Levanta el servidor
-
+```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 Déjalo corriendo. Verifica que funciona abriendo en el navegador: **http://localhost:8000/docs** — ahí ves la documentación interactiva (Swagger) de toda la API, y puedes probar cada endpoint en vivo, en frente del jurado si lo piden.
@@ -86,11 +86,12 @@ Déjalo corriendo. Verifica que funciona abriendo en el navegador: **http://loca
 
 ## Verificación rápida antes de salir a presentar
 
-Corre esto y confirma que las 3 líneas dicen `200`:
+Corre esto y confirma que las 4 líneas dicen `200`:
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/srd/tablero
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/fse/resumen
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/censo/resumen
 ```
 
 ## Si algo falla

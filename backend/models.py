@@ -80,6 +80,37 @@ class MovimientoFSE(Base):
     valor = Column(Float, nullable=False)  # positivo = ingreso, negativo = egreso
 
 
+class RegistroCenso(Base):
+    """Registro SIMULADO del Censo Juvenil Territorial.
+
+    A diferencia de `Estudiante` (que vive dentro del tenant de un colegio),
+    este registro representa el cruce a nivel de Secretaría/Alcaldía entre
+    SISBEN IV, SIMAT y el Sistema de Alertas Tempranas (SAT) de la
+    Defensoría del Pueblo: permite ubicar, por departamento y municipio,
+    tanto a los jóvenes que hoy NO están estudiando como a los que sí
+    estudian pero viven en una zona con alguna alerta de protección activa.
+    100% sintético — ningún dato corresponde a una persona real.
+    """
+    __tablename__ = "censo_juvenil"
+
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String, nullable=False)
+    edad = Column(Integer, nullable=False)
+    sexo = Column(String, nullable=False)              # "M" / "F" (simulado)
+    departamento = Column(String, nullable=False)
+    municipio = Column(String, nullable=False)
+    zona = Column(String, nullable=False)               # urbana / rural
+    barrio_vereda = Column(String, nullable=False)
+    nivel_sisben = Column(String, nullable=False)
+    estudia = Column(Boolean, nullable=False)
+    motivo_no_estudia = Column(String, nullable=True)
+    colegio = Column(String, nullable=True)
+    zona_riesgo = Column(Boolean, nullable=False, default=False)
+    tipo_alerta = Column(String, nullable=True)         # varias, separadas por "|"
+    ultimo_contacto = Column(Date, nullable=True)
+    estado_seguimiento = Column(String, nullable=False)  # Sin contactar / En seguimiento / Cerrado
+
+
 def get_engine(database_url: str):
     connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
     return create_engine(database_url, connect_args=connect_args)

@@ -13,11 +13,12 @@ Reto: *Innovación y Tecnología — Diseñar asistentes virtuales que faciliten
 
 GyverLabs es una plataforma **SaaS multi-tenant** de transformación digital para instituciones educativas públicas colombianas. Un solo servidor en la nube sirve a *N* colegios independientes, cada uno con su propio dominio, base de datos lógicamente aislada, identidad visual y usuarios.
 
-La plataforma integra tres módulos que atacan los problemas más críticos del sistema educativo público en Colombia:
+La plataforma integra cuatro módulos que atacan los problemas más críticos del sistema educativo público en Colombia:
 
 | Módulo | Problema que resuelve |
 |---|---|
-| **Detección Temprana de Deserción (SRD)** | El sistema calcula semanalmente un *Score de Riesgo de Deserción* por estudiante, cruzando asistencia, rendimiento académico, y variables socioeconómicas (con potencial de integración a fuentes abiertas como SISBÉN IV, SIMAT, DANE), y alerta a coordinadores antes de que el estudiante abandone el sistema. |
+| **Detección Temprana de Deserción (SRD)** | El sistema calcula semanalmente un *Score de Riesgo de Deserción* por estudiante, cruzando asistencia, rendimiento académico y variables socioeconómicas — hoy incluye el **nivel SISBÉN por estudiante** como dato visible y como factor del modelo, con alerta cruzada automática para hogares SISBÉN A1/A2 en riesgo crítico o moderado — y notifica a coordinadores antes de que el estudiante abandone el sistema. |
+| **Censo Juvenil Territorial** | Vista a nivel Secretaría/Alcaldía que cruza **SISBÉN + SIMAT + Sistema de Alertas Tempranas (SAT)** por departamento y municipio (Santander y Bolívar en la demo). Permite ubicar, municipio por municipio, tanto a los jóvenes de 12-17 años que **hoy no están estudiando** (con motivo y último contacto) como a los que **sí estudian pero viven en una zona con alguna alerta de protección activa** (reclutamiento, violencia, trabajo infantil, etc.), priorizando los casos de doble vulnerabilidad. |
 | **Aula Virtual Coordinada** | Da continuidad educativa a estudiantes que no pueden asistir presencialmente (trabajo estacional, distancia, salud), con arquitectura *offline-first* para zonas rurales de baja conectividad. |
 | **Sistema Contable FSE** | Automatiza la contabilidad de los Fondos de Servicios Educativos según el Catálogo General de Cuentas de la CGN y el Decreto 4791 de 2008, hoy llevada manualmente por rectores sin formación contable. |
 
@@ -102,7 +103,8 @@ Abre `frontend/index.html` directamente en cualquier navegador (doble clic o cli
 "Abrir con..."). Incluye:
 - Login del panel institucional
 - **Dashboard** con KPIs, mapa de calor de riesgo por grado y un listado completo de **todos los salones** (jornada, director de grupo, # de estudiantes, % en riesgo, asistencia promedio)
-- **Módulo SRD** con detalle completo por estudiante: faltas acumuladas, estado de notificación al acudiente y a rectoría (con botones para notificar y quedar registrado en el historial del caso), factores detectados por el modelo, y activación del protocolo de intervención
+- **Módulo SRD** con detalle completo por estudiante: faltas acumuladas, **nivel SISBÉN visible por estudiante**, estado de notificación al acudiente y a rectoría (con botones para notificar y quedar registrado en el historial del caso), factores detectados por el modelo, alerta cruzada automática cuando un hogar SISBÉN A1/A2 tiene riesgo crítico o moderado, y activación del protocolo de intervención
+- **Censo Juvenil Territorial** (nuevo): filtro por departamento (Santander / Bolívar) y municipio (Bucaramanga, Barrancabermeja, Puerto Wilches, Floridablanca, San Pablo, Santa Rosa del Sur, Simití, Cartagena), con KPIs de jóvenes fuera del sistema educativo, jóvenes en zona de alerta, y "doble vulnerabilidad"; dos tablas — jóvenes que no estudian (con motivo y SISBÉN) y jóvenes que sí estudian pero están en zona de riesgo/violencia (con tipo de alerta) — para que la Secretaría les haga seguimiento prioritario
 - **Asistencia** con 4 estados por estudiante (Presente / Tarde / Excusa / Ausente), guardado con resumen del día, gráfico de asistencia semanal, e integración automática: las faltas sin excusa suman al contador de faltas acumuladas del módulo SRD
 - **Aula Virtual** interactiva: crear materiales y tareas con fecha de entrega, seguimiento de vistos/entregados por material, e hilo de preguntas de estudiantes respondible por el docente
 - **Notas** por estudiante, con las 5 materias, los 4 períodos y la definitiva
@@ -125,7 +127,7 @@ o manualmente:
 cd backend
 python3 -m venv myenv && source myenv/bin/activate
 pip install -r requirements.txt
-python seed_data.py            # genera 840 estudiantes sintéticos + asistencia + FSE
+python seed_data.py            # genera 840 estudiantes sintéticos + asistencia + FSE + censo juvenil territorial
 python ml/train_demo.py        # entrena el LightGBM demo y reporta métricas reales
 uvicorn main:app --reload
 ```
@@ -135,8 +137,11 @@ los endpoints reales:
 | Endpoint | Qué hace |
 |---|---|
 | `GET /srd/tablero` | Mapa de calor de riesgo por grado + KPIs agregados |
-| `GET /srd/ranking` | Estudiantes ordenados por Score de Riesgo (modelo real) |
+| `GET /srd/ranking` | Estudiantes ordenados por Score de Riesgo (modelo real), incluye nivel SISBÉN |
 | `GET /srd/{id}` | Detalle de un estudiante puntual |
+| `GET /censo/geografia` | Departamentos y municipios disponibles (Santander / Bolívar) |
+| `GET /censo/resumen` | KPIs del censo juvenil filtrados por departamento/municipio |
+| `GET /censo/jovenes` | Listado de jóvenes censados, filtrable por `fuera_sistema` / `zona_riesgo` |
 | `GET /asistencia/resumen` | Tendencia de asistencia semanal (12 semanas) |
 | `POST /asistencia/registrar` | Contrato de registro de asistencia diaria |
 | `GET /fse/resumen` / `GET /fse/movimientos` | KPIs y movimientos contables del FSE |
