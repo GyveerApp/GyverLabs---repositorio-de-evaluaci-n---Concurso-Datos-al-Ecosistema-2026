@@ -1,19 +1,24 @@
 {
-  "auc_roc": 0.729,
-  "accuracy": 0.8429,
-  "precision": 1.0,
-  "recall": 0.25,
-  "n_train": 630,
-  "n_test": 210,
-  "n_iteraciones": 12,
+  "auc_roc": 0.7024,
+  "accuracy": 0.6686,
+  "precision": 0.2714,
+  "recall": 0.7917,
+  "umbral_operacion": 0.14,
+  "n_train": 507,
+  "n_test": 169,
+  "n_iteraciones": 4,
   "importancia_variables": {
-    "pct_asistencia_global": 136,
-    "pct_asistencia_4sem": 124,
-    "pct_ausencia_lunes": 173,
-    "promedio_actual": 187,
-    "tendencia_notas": 161,
-    "nivel_sisben_num": 47,
-    "zona_rural": 124
+    "pct_asistencia_global": 25,
+    "pct_asistencia_4sem": 104,
+    "pct_ausencia_lunes": 2,
+    "promedio_actual": 86,
+    "tendencia_notas": 56,
+    "nivel_sisben_num": 41,
+    "zona_rural": 13,
+    "asist_x_notas": 45,
+    "caida_asistencia": 93,
+    "sisben_x_rural": 6,
+    "ausencia_x_sisben": 44
   },
   "nota": "Métricas calculadas sobre el dataset SINTÉTICO de demostración (seed_data.py), con etiqueta construida artificialmente para fines de evaluación. No representan el desempeño del modelo de producción, que se entrena y calibra con datos reales por institución."
 }

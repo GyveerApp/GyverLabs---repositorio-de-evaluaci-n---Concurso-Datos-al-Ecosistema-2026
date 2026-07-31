@@ -1,0 +1,7 @@
+{"schema": "gyverlabs_unified_v1", "event": "SISTEMA_INICIADO", "ts": "2026-07-28T11:42:05", "actor": "Sistema", "version": "0.5.0-v4"}
+{"schema": "gyverlabs_unified_v1", "event": "SEED_GENERADO", "ts": "2026-07-28T11:42:05", "actor": "Sistema"}
+{"schema": "gyverlabs_unified_v1", "event": "MODELO_ENTRENADO", "ts": "2026-07-28T11:42:05", "actor": "Sistema"}
+{"schema": "gyverlabs_unified_v1", "event": "CLASE_ELIMINADA", "ts": "2026-07-28T18:29:37", "actor": "Docente", "titulo": "Escribir para que te lean (copia)"}
+{"schema": "gyverlabs_unified_v1", "event": "OBSERVADOR_FIRMADO", "ts": "2026-07-28T18:30:15", "actor": "acudiente", "estudiante_id": 169}
+{"schema": "gyverlabs_unified_v1", "event": "CLASE_IA_GENERADA", "ts": "2026-07-28T18:30:15", "actor": "Docente", "tema": "Ecuaciones de primer grado", "temas": 4, "archivos": 1}
+{"schema": "gyverlabs_unified_v1", "event": "EVALUACION_ENTREGADA", "ts": "2026-07-28T18:30:15", "actor": "Alumno", "estudiante_id": 169, "nota": 2.5, "intento": 1}
